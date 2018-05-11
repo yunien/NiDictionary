@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Page Title</title>
+<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+</head>
+<body>
+
+<h1>翻譯</h1>
+
+
+<div>
+  <Select id="catalogs"></Select>
+  <p>
+    <textarea id="textId" rows="4" cols="100"></textarea>
+    <button type="button" onclick="conveter()">翻譯</button>
+  </p>
+  <p>
+    <textarea id="result" rows="4" cols="100"></textarea>
+  </p>
+</div>
+
+<button type="button" onclick="show()">編輯字典</button>
+
+<div id="selectFiles">
+  <div>
+      <p></p>
+    <Select id="files"></Select>
+    <button type="button" onclick="edit()">編輯此變數資料</button>
+  </div>
+</div>
+
+<div id="editFileData">
+  <h1>新增或編輯資料</h1>
+  <p>中文( 變數用 => ${xxx} )</p>
+  <textarea id="twData" rows="4" cols="100"></textarea>
+  <p>英文</p>
+  <textarea id="cnData" rows="4" cols="100"></textarea>
+  <button type="button" onclick="add()">新增(含編輯)</button>
+  <button type="button" onclick="remove()">刪除</button>
+
+  <table id="fileDatas">
+    <thead>
+      <tr><td>中文</td><td>英文</td></tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+
+</body>
+</html>
+
+<script type="text/javascript" language="javascript">
+
+$(document).ready(function(){
+  console.log('ready');
+  var url = "http://localhost:2095/findData/base";
+    $.getJSON(url, (result) => {
+      if(result.catalogs.length === 0){
+        $("#catalogs").append($("<option></option>").attr("value", "先新增資料").text("先新增資料"));
+      }else{
+        result.catalogs.forEach((element) => {
+          $("#catalogs").append($("<option></option>").attr("value", element.key).text(element.key));
+        });
+      }
+    });
+    
+  $("#selectFiles").hide();
+  $("#editFileData").hide();
+});
+
+function add() {
+  console.log('add');
+  const file = document.getElementById("files").value;
+  let twData = document.getElementById("twData").value;
+  twData = twData.trim();
+  let cnData = document.getElementById("cnData").value;
+  if(twData.length <= 0 || cnData.length <= 0){
+    alert('請填寫中文及英文');
+    return;
+  }
+  const url = "http://localhost:2095/add/"+file;
+  const data = {twData, cnData};
+  $.post(url, data, (result) => {
+    // do nothing.
+    location.reload();
+    // if(file === 'base'){
+    //   $("#catalogs").append($("<option></option>").attr("value", twData).text(twData));
+    // }
+  });
+};
+
+function remove() {
+  console.log('remove');
+  const file = document.getElementById("files").value;
+  let twData = document.getElementById("twData").value;
+  twData = twData.trim();
+  if(twData.length <= 0){
+    alert('請填寫要刪掉的中文');
+    return;
+  }else{
+    if (!confirm('刪除就無法復原惹!!')) {
+      return;
+    }
+  }
+  const url = "http://localhost:2095/remove/"+file;
+  const data = {twData};
+  $.post(url, data, (result) => {
+    // do nothing.
+    location.reload();
+    // if(file === 'base'){
+    //   $("#catalogs option[value="+twData+"]").remove();
+    //   $("#fileDatas tbody tr[]").remove();
+    // }
+  });
+}
+
+$("#catalogs").change(() => {
+  $("#textId").val($("#catalogs").find(":selected").val());
+});
+
+function show() {
+  if( $("#selectFiles").is(":visible") ) {
+    $("#selectFiles").hide(200);
+    $("#files option").remove();
+  } else {
+    var url = "http://localhost:2095/getFileName";
+    $.getJSON(url, (result) => {
+      console.log('111:', result.files);
+      result.files.map(item => {
+        $("#files").append($("<option></option>").attr("value", item).text(item));
+      });
+      $("#selectFiles").show('fast');
+    });
+  }
+}
+
+$('#files').change(() => {
+  var file = document.getElementById("files").value;
+  console.log('files change:', file);
+});
+
+function edit() {
+  var file = document.getElementById("files").value;
+  var url = "http://localhost:2095/findData/"+file;
+  $.getJSON(url, (result) => {
+    $("#fileDatas tbody tr").remove();
+    result.catalogs.map((element) => {
+      $("#fileDatas tbody").append($("<tr><td>"+element.key+"</td><td>"+element.value+"</td></tr>"));
+    });
+    $("#editFileData").show('fast');
+  });
+}
+
+function conveter(){
+  let textBody = document.getElementById("textId").value;
+  textBody = textBody.trim();
+  if(textBody.length <= 0){
+    alert('請輸入翻譯資料');
+    return;
+  }
+  const textKey = document.getElementById("catalogs").value;
+  var url = "http://localhost:2095/conveter";
+  const data = {fileName: 'base', textKey, textBody};
+  $.post(url, data, (result) => {
+    $("#result").val(result.value);
+  });
+}
+
+</script>
