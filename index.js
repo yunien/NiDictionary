@@ -11,6 +11,11 @@ app.use(express.static('public'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 
+// init 建立base檔案
+setTimeout(function() {
+  createFile('base');
+}, 1000);
+
 const PUBLIC_PATH = './public/';
 
 const readFile = (fileName) => {
@@ -59,7 +64,6 @@ app.get('/findData/:fileName', async (req, res) => {
   res.send({catalogs: datas});
 });
 
-
 const findREaddir = () => new Promise((rs, rj) => {
   fs.readdir('./public', (err, files) => {
     if (err) {
@@ -85,11 +89,11 @@ app.get('/getFileName', async (req, res) => {
 
 app.post('/add/:fileName', async (req, res) => {
   const fileName = req.params.fileName;
-  console.log('fileName:', fileName);
+  
   const enJson = await readFile(fileName);
-  console.log('enJson:', enJson);
+  
   const data = {[`${req.body.twData}`]: req.body.cnData};
-  console.log('data:', data);
+
   Object.assign(enJson, data);
   const nweEnString = JSON.stringify(enJson);
   await writeFile(fileName, nweEnString);
@@ -103,12 +107,11 @@ app.post('/add/:fileName', async (req, res) => {
         const end = item.indexOf('}', start+1);
         const key = item.substring(start+1, end);
         if (key !== ''){
-          console.log('key:', key);
           createFile(key);
         }
       });
   }
-  res.status(200).send();
+  res.status(200).send({twData: req.body.twData, cnData: req.body.cnData});
 });
 
 app.post('/remove/:fileName', async (req, res) => {
@@ -122,7 +125,7 @@ app.post('/remove/:fileName', async (req, res) => {
   const nweEnString = JSON.stringify(enJson);
   await writeFile(fileName, nweEnString);
 
-  res.status(200).send();
+  res.status(200).send({twData: req.body.twData});
 });
 
 const getVariable = (element) => {
@@ -132,43 +135,10 @@ const getVariable = (element) => {
   return key;
 };
 
-const calculateCnData = (splitCnData, mappingArray) => new Promise((rs, rj) => {
-  let resultValue = '';
-  splitCnData.forEach( async (element) => {
-    const cnDataFileName = getVariable(element);
-    console.log('cnDataFileName:', cnDataFileName);
-    if (cnDataFileName !== ''){
-      const json = await readFile(cnDataFileName);
-      console.log('json:', json);
-      const mappingData = mappingArray.find(d => d.fName === cnDataFileName);
-      console.log('mappingData:', mappingData);
-      const secondCnData = json[mappingData.fKey];
-      console.log('secondCnData:', secondCnData);
-
-      if(secondCnData === undefined){
-        const replaceValue = element.replace('{'+cnDataFileName+'}', 'OOO');
-        resultValue = resultValue + replaceValue;
-      }else{
-        const replaceValue = element.replace('{'+cnDataFileName+'}', secondCnData);
-        resultValue = resultValue + replaceValue;
-      }
-    } else {  // first time.
-      resultValue = resultValue + element;
-    }
-    console.log('resultValue:', resultValue);
-  });
-  rs(resultValue);
-});
-
 app.post('/conveter', async (req, res) => {
   const {fileName, textKey, textBody} = req.body;
   const textKeyArr = textKey.split('$');
   const textBodyArr = textBody.split('$');
-  
-  //textKey: ${123}之${456}
-  //textBody: ${空中}之${王}
-  //cnText: ${456} of ${123}
-
   let mappingArr = textKeyArr.map((d, i) => {
     if(i > 0) {
       const fName = getVariable(textKeyArr[i]);
@@ -178,7 +148,6 @@ app.post('/conveter', async (req, res) => {
       return {fName: 'base', fKey: textKey};
     }
   });
-  console.log('mappingArr:', mappingArr);
 
   const baseJson = readFile(fileName);
   const firstValue = baseJson[textKey];
@@ -212,4 +181,4 @@ process.on('unhandledRejection', error => {
   process.exit(1) // To exit with a 'failure' code
 });
 
-app.listen(2095, () => console.log('Example app listening on port 2095!'))
+app.listen(2095, () => console.log('Website：http://localhost:2095/'))

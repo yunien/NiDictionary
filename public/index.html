@@ -1,73 +1,124 @@
 <!DOCTYPE html>
-<html>
+<html lang="tw">
 <head>
-<title>Page Title</title>
-<script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NiDictionary</title>
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+  <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    
 </head>
 <body>
+  <nav class="navbar navbar-expand-sm bg-dark navbar-dark">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#collapsibleNavbar">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="collapsibleNavbar">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="changeConverterBlock()">翻譯</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#" onclick="changeEditBlock()">新增/編輯</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="#">匯入excel(尚未開發)</a>
+        </li>    
+      </ul>
+    </div>  
+  </nav>
 
-<h1>翻譯</h1>
+  <!-- container -->
+  <div class="container jumbotron" style="margin-bottom:0;margin-top:30px">
+    <!-- 翻譯區塊 -->
+    <div id="converter_block">
+      <h3>翻譯</h3>
+      <div class="form-group">
+        <label for="catalogs">選擇翻譯項目</label>
+        <select class="custom-select" id="catalogs" style="width:auto;"></select>
+      </div>
+  
+      <div class="form-group">
+        <label class="mx-auto" for="textId">翻譯</label>
+        <textarea id="textId" rows="2" cols="50" placeholder="converter word" style="width:auto;"></textarea>
+        <button type="button" class="btn btn-primary" onclick="converter()">翻譯</button>
+      </div>
+  
+      <!-- <div class="form-group">
+        
+      </div> -->
+      
+      <div class="form-group">
+        <label for="result">結果</label>
+        <textarea id="result" rows="2" cols="50" placeholder="result" style="width:auto;"></textarea>
+        <button type="button" class="btn btn-info" onclick="copy()">複製</button>
+      </div>
+      
+    </div><!-- 翻譯區塊 -->
+    
+    <!-- 新增/編輯區塊 -->
+    <div id="edit_block">
+      <h3>新增/編輯</h3>
+      <div class="form-group">
+        <label for="files">選取變數檔案</label>
+        <select class="custom-select" id="files" style="width:auto"></select>
+      </div>
+      
+      <div class="form-group">
+        <label for="twData">中文</label>
+        <textarea id="twData" rows="2" cols="50"></textarea>
+        <!-- <input type="text" class="form-control" id="textId" placeholder="converter word" style="width:auto;"> -->
+      </div>
 
+      <div class="form-group">
+        <label for="cnData">英文</label>
+        <textarea id="cnData" rows="2" cols="50"></textarea>
+        <!-- <input type="text" class="form-control" id="textId" placeholder="converter word" style="width:auto;"> -->
+      </div>
+      
+      <div class="form-group">
+        <button class="btn btn-primary" onclick="add()">新增(含編輯)</button>
+        <button class="btn btn-danger" onclick="remove()">刪除</button>
+      </div>
+    
+      <table class="table" id="fileDatas">
+        <thead>
+          <tr>
+            <th>中文</th>
+            <th>英文</th>
+            <th>複製</th>
+          </tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div><!-- 新增/編輯區塊 -->
 
-<div>
-  <Select id="catalogs"></Select>
-  <p>
-    <textarea id="textId" rows="4" cols="100"></textarea>
-    <button type="button" onclick="conveter()">翻譯</button>
-  </p>
-  <p>
-    <textarea id="result" rows="4" cols="100"></textarea>
-  </p>
-</div>
-
-<button type="button" onclick="show()">編輯字典</button>
-
-<div id="selectFiles">
-  <div>
-      <p></p>
-    <Select id="files"></Select>
-    <button type="button" onclick="edit()">編輯此變數資料</button>
-  </div>
-</div>
-
-<div id="editFileData">
-  <h1>新增或編輯資料</h1>
-  <p>中文( 變數用 => ${xxx} )</p>
-  <textarea id="twData" rows="4" cols="100"></textarea>
-  <p>英文</p>
-  <textarea id="cnData" rows="4" cols="100"></textarea>
-  <button type="button" onclick="add()">新增(含編輯)</button>
-  <button type="button" onclick="remove()">刪除</button>
-
-  <table id="fileDatas">
-    <thead>
-      <tr><td>中文</td><td>英文</td></tr>
-    </thead>
-    <tbody></tbody>
-  </table>
-</div>
-
+  </div><!-- container -->
 </body>
 </html>
 
+
+
 <script type="text/javascript" language="javascript">
 
-$(document).ready(function(){
-  console.log('ready');
-  var url = "http://localhost:2095/findData/base";
-    $.getJSON(url, (result) => {
-      if(result.catalogs.length === 0){
-        $("#catalogs").append($("<option></option>").attr("value", "先新增資料").text("先新增資料"));
-      }else{
-        result.catalogs.forEach((element) => {
-          $("#catalogs").append($("<option></option>").attr("value", element.key).text(element.key));
-        });
-      }
-    });
-    
-  $("#selectFiles").hide();
-  $("#editFileData").hide();
-});
+function copy_tr(data){
+  const name = $(data).val().split('||');
+  $("#twData").val(name[0]);
+  $("#cnData").val(name[1]);
+}
+
+function copy() {
+  var value =document.getElementById("result");
+  value.select();
+  document.execCommand("Copy");
+}
 
 function add() {
   console.log('add');
@@ -82,16 +133,18 @@ function add() {
   const url = "http://localhost:2095/add/"+file;
   const data = {twData, cnData};
   $.post(url, data, (result) => {
-    // do nothing.
-    location.reload();
-    // if(file === 'base'){
-    //   $("#catalogs").append($("<option></option>").attr("value", twData).text(twData));
-    // }
+    $("#"+result.twData+"").remove();
+    $("#fileDatas tbody").append($("<tr id="+result.twData+">"+
+      "<td>"+result.twData+"</td>"+
+      "<td>"+result.cnData+"</td>"+
+      "<td><button class='btn btn-info' value='"+result.twData+"||"+result.cnData+"' onclick='copy_tr(this)'>複製</button></td>"+
+      "</tr>"));
+    $("#twData").val("");
+    $("#cnData").val("");
   });
 };
 
 function remove() {
-  console.log('remove');
   const file = document.getElementById("files").value;
   let twData = document.getElementById("twData").value;
   twData = twData.trim();
@@ -106,12 +159,7 @@ function remove() {
   const url = "http://localhost:2095/remove/"+file;
   const data = {twData};
   $.post(url, data, (result) => {
-    // do nothing.
-    location.reload();
-    // if(file === 'base'){
-    //   $("#catalogs option[value="+twData+"]").remove();
-    //   $("#fileDatas tbody tr[]").remove();
-    // }
+    initFileTable();
   });
 }
 
@@ -119,40 +167,37 @@ $("#catalogs").change(() => {
   $("#textId").val($("#catalogs").find(":selected").val());
 });
 
-function show() {
-  if( $("#selectFiles").is(":visible") ) {
-    $("#selectFiles").hide(200);
-    $("#files option").remove();
-  } else {
-    var url = "http://localhost:2095/getFileName";
+function initFileTable(){
+  console.log('initFileTable');
+  $("#fileDatas tbody tr").remove();
+  var file = document.getElementById("files").value;
+  if(file !== "") {
+    var url = "http://localhost:2095/findData/"+file;
     $.getJSON(url, (result) => {
-      console.log('111:', result.files);
-      result.files.map(item => {
-        $("#files").append($("<option></option>").attr("value", item).text(item));
+      result.catalogs.map((element) => {
+        $("#fileDatas tbody").append(
+          $(
+            "<tr id="+element.key+">"+
+              "<td>"+element.key+"</td>"+
+              "<td>"+element.value+"</td>"+
+              "<td><button class='btn btn-info' value='"+element.key+"||"+element.value+"' onclick='copy_tr(this)'>複製</button></td>"+
+            "</tr>"
+          )
+        );
       });
-      $("#selectFiles").show('fast');
+      $("#twData").val("");
+      $("#cnData").val("");
     });
+  } else {
+    console.log('file is empty');
   }
 }
 
 $('#files').change(() => {
-  var file = document.getElementById("files").value;
-  console.log('files change:', file);
+  initFileTable();
 });
 
-function edit() {
-  var file = document.getElementById("files").value;
-  var url = "http://localhost:2095/findData/"+file;
-  $.getJSON(url, (result) => {
-    $("#fileDatas tbody tr").remove();
-    result.catalogs.map((element) => {
-      $("#fileDatas tbody").append($("<tr><td>"+element.key+"</td><td>"+element.value+"</td></tr>"));
-    });
-    $("#editFileData").show('fast');
-  });
-}
-
-function conveter(){
+function converter(){
   let textBody = document.getElementById("textId").value;
   textBody = textBody.trim();
   if(textBody.length <= 0){
@@ -166,5 +211,52 @@ function conveter(){
     $("#result").val(result.value);
   });
 }
+
+function getFileName() {
+  $("#files option").remove();
+  var url = "http://localhost:2095/getFileName";
+  $.getJSON(url, (result) => {
+    $("#files").append($("<option></option>").attr("value", "").text("請選擇"));
+    result.files.map(item => {
+      $("#files").append($("<option></option>").attr("value", item).text(item));
+    });
+  });
+}
+
+function changeEditBlock() {
+  $("#edit_block").show('fast');
+  $("#converter_block").hide();
+  $("#twData").val("");
+  $("#cnData").val("");
+  $("#fileDatas tbody tr").remove();
+  getFileName();
+}
+
+function changeConverterBlock(){
+  $("#converter_block").show('fast');
+  $("#edit_block").hide();
+  $("#textId").val("");
+  $("#result").val("");
+  init();
+}
+
+function init(){
+  $("#catalogs option").remove();
+  var url = "http://localhost:2095/findData/base";
+  $.getJSON(url, (result) => {
+    if(result.catalogs.length === 0){
+      $("#catalogs").append($("<option></option>").attr("value", "先新增資料").text("先新增資料"));
+    }else{
+      $("#catalogs").append($("<option></option>").attr("value", "").text("請選擇"));
+      result.catalogs.forEach((element) => {
+        $("#catalogs").append($("<option></option>").attr("value", element.key).text(element.key));
+      });
+    }
+  });
+}
+
+$(document).ready(function(){
+  changeConverterBlock();
+});
 
 </script>
