@@ -50,10 +50,6 @@
         <textarea id="textId" rows="2" cols="50" placeholder="converter word" style="width:auto;"></textarea>
         <button type="button" class="btn btn-primary" onclick="converter()">翻譯</button>
       </div>
-  
-      <!-- <div class="form-group">
-        
-      </div> -->
       
       <div class="form-group">
         <label for="result">結果</label>
@@ -61,6 +57,10 @@
         <button type="button" class="btn btn-info" onclick="copy()">複製</button>
       </div>
       
+      <!-- 錯誤訊息區塊 -->
+      <div class="alert alert-warning" id="error_alert" style="display:none;">
+      </div>
+
     </div><!-- 翻譯區塊 -->
     
     <!-- 新增/編輯區塊 -->
@@ -165,6 +165,8 @@ function remove() {
 
 $("#catalogs").change(() => {
   $("#textId").val($("#catalogs").find(":selected").val());
+  $("#result").val("");
+  $('#error_alert').hide();
 });
 
 function initFileTable(){
@@ -198,6 +200,7 @@ $('#files').change(() => {
 });
 
 function converter(){
+  $('#error_alert').hide();
   let textBody = document.getElementById("textId").value;
   textBody = textBody.trim();
   if(textBody.length <= 0){
@@ -209,6 +212,10 @@ function converter(){
   const data = {fileName: 'base', textKey, textBody};
   $.post(url, data, (result) => {
     $("#result").val(result.value);
+  }).fail((error) => {
+    const {errorMsg} = error.responseJSON;
+    $("#error_alert").text(errorMsg);
+    $('#error_alert').fadeIn();
   });
 }
 
@@ -237,6 +244,7 @@ function changeConverterBlock(){
   $("#edit_block").hide();
   $("#textId").val("");
   $("#result").val("");
+  $('#error_alert').hide();
   init();
 }
 
